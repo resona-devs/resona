@@ -1,0 +1,20 @@
+[project]
+name = "resona-data"
+version = "0.1.0"
+description = "Resona's Data Acquisition & Paper Processing. Goal: Collect, filter, and organize relevant research materials"
+authors = [
+    {name = "Zhandos Mukatayev", email = "zhanmdd@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "arxiv (>=2.1.3,<3.0.0)",
+    "pytest (>=8.3.4,<9.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
