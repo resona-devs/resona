@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Research Query Refiner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        #chatBox {
+            height: 400px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        #messageInput {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+        #status {
+            color: #666;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Research Query Refiner</h1>
+    <div id="status">Disconnected</div>
+    <div id="chatBox"></div>
+    <div>
+        <input type="text" id="messageInput" placeholder="Type your research topic...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let ws;
+        const chatBox = document.getElementById('chatBox');
+        const messageInput = document.getElementById('messageInput');
+        const statusDiv = document.getElementById('status');
+
+        function connect() {
+            ws = new WebSocket('ws://localhost:8000/chat');
+
+            ws.onopen = () => {
+                statusDiv.textContent = 'Connected';
+                statusDiv.style.color = 'green';
+            };
+
+            ws.onclose = () => {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.style.color = 'red';
+                // Try to reconnect after 3 seconds
+                setTimeout(connect, 3000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                addMessage('Error connecting to server. Please try again.', 'bot');
+            };
+
+            ws.onmessage = (event) => {
+                addMessage(event.data, 'bot');
+            };
+        }
+
+        function addMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = message;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && ws && ws.readyState === WebSocket.OPEN) {
+                addMessage(message, 'user');
+                ws.send(message);
+                messageInput.value = '';
+            }
+        }
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initial connection
+        connect();
+    </script>
+</body>
+</html>
